@@ -1,58 +1,35 @@
 import { Request, Response } from "express";
-import { Todo } from "../models/exampleModel";
+import { Voertuig } from "../models/voertuigModel";
 import { Error as MongooseError } from "mongoose";
 const { ValidationError } = MongooseError;
 
-export const getHelloWorld = (req: Request, res: Response) => {
-  res.status(200).json({ message: "Hello World!" });
-};
-
-export const getTodos = async (req: Request, res: Response) => {
+export const addVoertuig = async (req: Request, res: Response) => {
   try {
-    const todos = await Todo.find();
-    res.status(200).json(todos);
-  } catch (error: unknown) {
-    if (error instanceof Error) {
-      res.status(500).json({ message: error.message });
+    const { merk, model, bouwjaar, prijs, type, cilinderinhoud } = req.body;
+    const voertuig = await Voertuig.create({ merk, model, bouwjaar, prijs, type, cilinderinhoud });
+    res.status(201).json(voertuig);
+  } catch (err) {
+    if (err instanceof ValidationError) {
+      res.status(400).json({ message: err.message });
     } else {
       res.status(500).json({ message: "Something went wrong" });
     }
   }
 };
 
-export const addTodo = async (req: Request, res: Response) => {
+export const getVoertuigen = async (req: Request, res: Response) => {
   try {
-    const { task } = req.body;
-    const todo = await Todo.create({ task });
-    res.status(201).json(todo);
-  } catch (error: unknown) {
-    if (error instanceof ValidationError) {
-      res.status(400).json({ message: error.message });
-    } else if (error instanceof Error) {
-      res.status(500).json({ message: error.message });
-    } else {
-      res.status(500).json({ message: "Something went wrong" });
+    const { merk, bouwjaar } = req.query;
+    let query: any = {};
+    if (merk) {
+      query.merk = merk;
     }
-  }
-};
-
-export const updateTodo = async (req: Request, res: Response) => {
-  try {
-    const { id } = req.params;
-    const { task, done } = req.body;
-    const todo = await Todo.findByIdAndUpdate(
-      id,
-      { task, done },
-      { new: true }
-    );
-    res.status(200).json(todo);
-  } catch (error: unknown) {
-    if (error instanceof ValidationError) {
-      res.status(400).json({ message: error.message });
-    } else if (error instanceof Error) {
-      res.status(500).json({ message: error.message });
-    } else {
-      res.status(500).json({ message: "Something went wrong" });
+    if (bouwjaar) {
+      query.bouwjaar = parseInt(bouwjaar as string);
     }
+    const voertuigen = await Voertuig.find(query);
+    res.status(200).json(voertuigen);
+  } catch (err) {
+    res.status(500).json({ message: "Something went wrong" });
   }
 };
