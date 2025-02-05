@@ -33,3 +33,28 @@ export const getVoertuigen = async (req: Request, res: Response) => {
     res.status(500).json({ message: "Something went wrong" });
   }
 };
+
+export const updateVoertuig = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { merk, model, bouwjaar, prijs, type, cilinderinhoud } = req.body;
+    const voertuig = await Voertuig.findByIdAndUpdate(
+      id,
+      { merk, model, bouwjaar, prijs, type, cilinderinhoud },
+      { new: true }
+    );
+    res.status(200).json(voertuig);
+  } catch (err) {
+    res.status(500).json({ message: "Something went wrong" });
+  }
+};
+
+export const deleteVoertuig = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const voertuig = await Voertuig.findByIdAndDelete(id);
+    res.status(200).json(voertuig);
+  } catch (err) {
+    res.status(500).json({ message: "Something went wrong" });
+  }
+};

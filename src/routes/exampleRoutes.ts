@@ -1,17 +1,12 @@
 import express from "express";
 import {
-  getHelloWorld,
-  getTodos,
-  addTodo,
-  updateTodo,
-} from "../controllers/exampleController";
+  addVoertuig,
+  getVoertuigen
+} from "../controllers/voertuigController";
 
 const router = express.Router();
 
-router
-  .get("/test", getHelloWorld)
-  .get("/todos", getTodos)
-  .post("/todos", addTodo)
-  .patch("/todos/:id", updateTodo);
+router.get
+
 
 export default router;
