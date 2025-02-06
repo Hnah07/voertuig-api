@@ -1,7 +1,9 @@
 import express from "express";
 import {
   addVoertuig,
-  getVoertuigen
+  getVoertuigen,
+  updateVoertuig,
+  deleteVoertuig,
 } from "../controllers/voertuigController";
 
 const router = express.Router();
@@ -19,25 +21,24 @@ const router = express.Router();
  *          schema:
  *            type: object
  *            properties:
- *              naam:
- *                type: string
  *              merk:
  *                type: string
- *              type:
+ *              model:
  *                type: string
- *              kleur:
- *                type: string
+ *              bouwjaar:
+ *                type: number
  *              prijs:
  *                type: number
- *              beschrijving:
+ *              type:
  *                type: string
+ *              cilinderinhoud:
+ *                type: number
  *            required:
- *              - naam
  *              - merk
- *              - type
- *              - kleur
+ *              - model
+ *              - bouwjaar
  *              - prijs
- *              - beschrijving
+ *              - type
  *    responses:
  *      '201':
  *        description: Voertuig created successfully
@@ -46,20 +47,35 @@ const router = express.Router();
  *      '500':
  *        description: Internal server error
  * 
- * /voertuig:
  *  get:
  *    summary: Get all voertuigen
  *    tags: [Voertuigen]
  *    responses:
  *      '200':
  *        description: Voertuigen fetched successfully
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: array
+ *              items:
+ *                $ref: '#/components/schemas/Voertuig'
  *      '500':
  *        description: Internal server error
+ *        content:
+ *          application/json:
+ *            schema:
+ *              $ref: '#/components/schemas/Error'
  * 
- * /voertuig/:id:
+ * /voertuig/{id}:
  *  get:
  *    summary: Get a voertuig by id
  *    tags: [Voertuigen]
+ *    parameters:
+ *      - in: path
+ *        name: id
+ *        required: true
+ *        schema:
+ *          type: string
  *    responses:
  *      '200':
  *        description: Voertuig fetched successfully
@@ -68,10 +84,40 @@ const router = express.Router();
  *      '500':
  *        description: Internal server error
  * 
- * /voertuig/:id:
  *  put:
  *    summary: Update a voertuig by id
  *    tags: [Voertuigen]
+ *    parameters:
+ *      - in: path
+ *        name: id
+ *        required: true
+ *        schema:
+ *          type: string
+ *    requestBody:
+ *      required: true
+ *      content:
+ *        application/json:
+ *          schema:
+ *            type: object
+ *            properties:
+ *              merk:
+ *                type: string
+ *              model:
+ *                type: string
+ *              bouwjaar:
+ *                type: number
+ *              prijs:
+ *                type: number
+ *              type:
+ *                type: string
+ *              cilinderinhoud:
+ *                type: number
+ *            required:
+ *              - merk
+ *              - model
+ *              - bouwjaar
+ *              - prijs
+ *              - type
  *    responses:
  *      '200':
  *        description: Voertuig updated successfully
@@ -80,10 +126,15 @@ const router = express.Router();
  *      '500':
  *        description: Internal server error
  * 
- * /voertuig/:id:
  *  delete:
  *    summary: Delete a voertuig by id
  *    tags: [Voertuigen]
+ *    parameters:
+ *      - in: path
+ *        name: id
+ *        required: true
+ *        schema:
+ *          type: string
  *    responses:
  *      '200':
  *        description: Voertuig deleted successfully
@@ -94,11 +145,11 @@ const router = express.Router();
  */
 
 router
-.post("/voertuig", addVoertuig)
-.get("/voertuig", getVoertuigen)
-.get("/voertuig/:id", getVoertuigen)
-.put("/voertuig/:id", getVoertuigen)
-.delete("/voertuig/:id", getVoertuigen);
-
+  .post("/", addVoertuig)
+  .get("/", getVoertuigen)
+  .get("/:id", getVoertuigen)
+  .put("/:id", updateVoertuig)
+  .delete("/:id", deleteVoertuig);
 
 export default router;
+

@@ -6,6 +6,8 @@ import { notFound } from "./controllers/notFoundController";
 import voertuigRoutes from "./routes/voertuigRoutes";
 import { helloMiddleware } from "./middleware/exampleMiddleware";
 import mongoose from "mongoose";
+import { specs } from "./swagger";
+import swaggerUi from "swagger-ui-express";
 
 // Variables
 const app = express();
@@ -16,7 +18,8 @@ app.use(cors());
 app.use(express.json());
 
 // Routes
-app.use("/api", helloMiddleware, voertuigRoutes);
+app.use("/api", voertuigRoutes);
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
 app.all("*", notFound);
 
 // Database connection
