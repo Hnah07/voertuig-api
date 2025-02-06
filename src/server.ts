@@ -4,7 +4,6 @@ import cors from "cors";
 import express from "express";
 import { notFound } from "./controllers/notFoundController";
 import voertuigRoutes from "./routes/voertuigRoutes";
-import { helloMiddleware } from "./middleware/exampleMiddleware";
 import mongoose from "mongoose";
 import { specs } from "./swagger";
 import swaggerUi from "swagger-ui-express";
@@ -24,7 +23,10 @@ app.all("*", notFound);
 
 // Database connection
 try {
-  await mongoose.connect(process.env.MONGO_URI!);
+  if(!process.env.MONGO_URI) {
+    throw new Error("MONGO_URI is not defined in .env file");
+  }
+  await mongoose.connect(process.env.MONGO_URI);
   console.log("Database connection OK");
 } catch (err) {
   console.error(err);

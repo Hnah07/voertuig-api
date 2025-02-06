@@ -145,11 +145,11 @@ const router = express.Router();
  */
 
 router
-  .post("/", addVoertuig)
-  .get("/", getVoertuigen)
-  .get("/:id", getVoertuigen)
-  .put("/:id", updateVoertuig)
-  .delete("/:id", deleteVoertuig);
+  .post("/voertuig", addVoertuig)
+  .get("/voertuigen", getVoertuigen)
+  .get("/voertuig/:id", getVoertuigen)
+  .put("/voertuig/:id", updateVoertuig)
+  .delete("/voertuig/:id", deleteVoertuig);
 
 export default router;
 
