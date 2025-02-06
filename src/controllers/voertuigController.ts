@@ -19,18 +19,65 @@ export const addVoertuig = async (req: Request, res: Response) => {
 
 export const getVoertuigen = async (req: Request, res: Response) => {
   try {
-    const { merk, bouwjaar } = req.query;
-    let query: any = {};
-    if (merk) {
-      query.merk = merk;
+    const { type, minPrijs, maxPrijs, page = 1, limit = 5 } = req.query;
+
+    let filter: any = {};
+
+    if (type) filter.type = type;
+    
+    if (minPrijs || maxPrijs) {
+      filter["prijs"] = {}; 
+      if (minPrijs) filter["prijs"].$gte = parseInt(minPrijs as string);
+      if (maxPrijs) filter["prijs"].$lte = parseInt(maxPrijs as string);
     }
-    if (bouwjaar) {
-      query.bouwjaar = parseInt(bouwjaar as string);
-    }
-    const voertuigen = await Voertuig.find(query);
-    res.status(200).json(voertuigen);
+
+    const pageNumber = parseInt(page as string);
+    const limitNumber = parseInt(limit as string);
+    const skip = (pageNumber - 1) * limitNumber;
+
+    const voertuigen = await Voertuig.find(filter).skip(skip).limit(limitNumber).lean();
+    const total = await Voertuig.countDocuments(filter);
+
+    voertuigen.forEach((voertuig: any) => {
+      if (voertuig.type === "moto" && voertuig.cilinderinhoud) {
+        if (voertuig.cilinderinhoud <= 125) voertuig.rijbewijs = "A1";
+        else if (voertuig.cilinderinhoud > 125 && voertuig.cilinderinhoud <= 500) voertuig.rijbewijs = "A2";
+        else voertuig.rijbewijs = "A";
+      }
+    });
+
+    res.status(200).json({
+      total,
+      page: pageNumber,
+      limit: limitNumber,
+      results: voertuigen
+    });
   } catch (err) {
     res.status(500).json({ message: "Something went wrong" });
+  }
+};
+
+export const getVoertuigById = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    const voertuig = await Voertuig.findById(id);
+
+    if (!voertuig) {
+      return res.status(404).json({ message: "Voertuig niet gevonden" });
+    }
+
+    let motoRijbewijs: any  = voertuig.toObject();
+
+    if (voertuig.type === "moto" && voertuig.cilinderinhoud) {
+      if (voertuig.cilinderinhoud <= 125) motoRijbewijs.rijbewijs = "A1";
+      else if (voertuig.cilinderinhoud > 125 && voertuig.cilinderinhoud <= 500) motoRijbewijs.rijbewijs = "A2";
+      else motoRijbewijs.rijbewijs = "A";
+    }
+
+    res.status(200).json(motoRijbewijs);
+  } catch (err) {
+    res.status(500).json({ message: "Er is iets misgegaan", error: err });
   }
 };
 

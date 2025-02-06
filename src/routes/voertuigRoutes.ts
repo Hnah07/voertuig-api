@@ -2,6 +2,7 @@ import express from "express";
 import {
   addVoertuig,
   getVoertuigen,
+  getVoertuigById,
   updateVoertuig,
   deleteVoertuig,
 } from "../controllers/voertuigController";
@@ -147,7 +148,7 @@ const router = express.Router();
 router
   .post("/voertuig", addVoertuig)
   .get("/voertuigen", getVoertuigen)
-  .get("/voertuig/:id", getVoertuigen)
+  .get("/voertuig/:id", getVoertuigById)
   .put("/voertuig/:id", updateVoertuig)
   .delete("/voertuig/:id", deleteVoertuig);
 
