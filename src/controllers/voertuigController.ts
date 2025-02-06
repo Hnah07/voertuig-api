@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { Voertuig } from "../models/voertuigModel";
 import { Error as MongooseError } from "mongoose";
+import { get } from "http";
 const { ValidationError } = MongooseError;
 
 export const addVoertuig = async (req: Request, res: Response) => {
@@ -16,6 +17,15 @@ export const addVoertuig = async (req: Request, res: Response) => {
     }
   }
 };
+
+function getMotoRijbewijs(voertuig: any) {
+  if (voertuig.type === "moto" && voertuig.cilinderinhoud) {
+    if (voertuig.cilinderinhoud <= 125) voertuig.rijbewijs = "A1";
+    else if (voertuig.cilinderinhoud > 125 && voertuig.cilinderinhoud <= 500) voertuig.rijbewijs = "A2";
+    else voertuig.rijbewijs = "A";
+  }
+  return voertuig;
+}
 
 export const getVoertuigen = async (req: Request, res: Response) => {
   try {
@@ -39,11 +49,7 @@ export const getVoertuigen = async (req: Request, res: Response) => {
     const total = await Voertuig.countDocuments(filter);
 
     voertuigen.forEach((voertuig: any) => {
-      if (voertuig.type === "moto" && voertuig.cilinderinhoud) {
-        if (voertuig.cilinderinhoud <= 125) voertuig.rijbewijs = "A1";
-        else if (voertuig.cilinderinhoud > 125 && voertuig.cilinderinhoud <= 500) voertuig.rijbewijs = "A2";
-        else voertuig.rijbewijs = "A";
-      }
+      getMotoRijbewijs(voertuig);
     });
 
     res.status(200).json({
@@ -67,13 +73,9 @@ export const getVoertuigById = async (req: Request, res: Response) => {
       return res.status(404).json({ message: "Voertuig niet gevonden" });
     }
 
-    let motoRijbewijs: any  = voertuig.toObject();
+    let motoRijbewijs: any = voertuig.toObject();
 
-    if (voertuig.type === "moto" && voertuig.cilinderinhoud) {
-      if (voertuig.cilinderinhoud <= 125) motoRijbewijs.rijbewijs = "A1";
-      else if (voertuig.cilinderinhoud > 125 && voertuig.cilinderinhoud <= 500) motoRijbewijs.rijbewijs = "A2";
-      else motoRijbewijs.rijbewijs = "A";
-    }
+    getMotoRijbewijs(motoRijbewijs);
 
     res.status(200).json(motoRijbewijs);
   } catch (err) {
